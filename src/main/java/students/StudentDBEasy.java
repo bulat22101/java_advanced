@@ -49,7 +49,11 @@ public class StudentDBEasy implements StudentQuery {
     @Override
     public List<Student> sortStudentsByName(Collection<Student> students) {
         return students.stream()
-                .sorted(Comparator.comparing(Student::getFirstName).thenComparing(Student::getLastName))
+                .sorted(
+                        Comparator.comparing(Student::getLastName)
+                                .thenComparing(Student::getFirstName)
+                                .thenComparing(Student::getId)
+                )
                 .collect(Collectors.toList());
     }
 
@@ -57,6 +61,7 @@ public class StudentDBEasy implements StudentQuery {
     public List<Student> findStudentsByFirstName(Collection<Student> students, String name) {
         return students.stream()
                 .filter(student -> Objects.equals(student.getFirstName(), name))
+                .sorted(Comparator.comparing(Student::getLastName).thenComparing(Student::getId))
                 .collect(Collectors.toList());
     }
 
@@ -64,14 +69,17 @@ public class StudentDBEasy implements StudentQuery {
     public List<Student> findStudentsByLastName(Collection<Student> students, String name) {
         return students.stream()
                 .filter(student -> Objects.equals(student.getLastName(), name))
+                .sorted(Comparator.comparing(Student::getFirstName).thenComparing(Student::getId))
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<Student> findStudentsByGroup(Collection<Student> students, String group) {
-        return students.stream()
-                .filter(student -> Objects.equals(student.getGroup(), group))
-                .collect(Collectors.toList());
+        return sortStudentsByName(
+                students.stream()
+                        .filter(student -> Objects.equals(student.getGroup(), group))
+                        .collect(Collectors.toList())
+        );
     }
 
     @Override
@@ -83,8 +91,8 @@ public class StudentDBEasy implements StudentQuery {
                                 Student::getLastName,
                                 Student::getFirstName,
                                 (name1, name2) -> Objects.compare(name1, name2, Comparator.comparing(name -> name)) > 0
-                                        ? name1
-                                        : name2
+                                        ? name2
+                                        : name1
                         )
                 );
     }

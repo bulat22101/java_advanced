@@ -4,6 +4,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class StudentDBEasy implements StudentQuery {
+    public final static Comparator<Student> STUDENT_BY_NAME_COMPARATOR = Comparator.comparing(Student::getLastName)
+            .thenComparing(Student::getFirstName)
+            .thenComparing(Student::getId);
+    public final static Comparator<Student> STUDENT_BY_ID_COMPARATOR = Comparator.comparing(Student::getId);
+
+
     @Override
     public List<String> getFirstNames(List<Student> students) {
         return students.stream().map(Student::getFirstName).collect(Collectors.toList());
@@ -34,7 +40,7 @@ public class StudentDBEasy implements StudentQuery {
     @Override
     public String getMinStudentFirstName(List<Student> students) {
         return students.stream()
-                .min(Comparator.comparing(Student::getId))
+                .min(STUDENT_BY_ID_COMPARATOR)
                 .map(Student::getFirstName)
                 .orElse("");
     }
@@ -42,18 +48,14 @@ public class StudentDBEasy implements StudentQuery {
     @Override
     public List<Student> sortStudentsById(Collection<Student> students) {
         return students.stream()
-                .sorted(Comparator.comparing(Student::getId))
+                .sorted(STUDENT_BY_ID_COMPARATOR)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<Student> sortStudentsByName(Collection<Student> students) {
         return students.stream()
-                .sorted(
-                        Comparator.comparing(Student::getLastName)
-                                .thenComparing(Student::getFirstName)
-                                .thenComparing(Student::getId)
-                )
+                .sorted(STUDENT_BY_NAME_COMPARATOR)
                 .collect(Collectors.toList());
     }
 
@@ -61,7 +63,7 @@ public class StudentDBEasy implements StudentQuery {
     public List<Student> findStudentsByFirstName(Collection<Student> students, String name) {
         return students.stream()
                 .filter(student -> Objects.equals(student.getFirstName(), name))
-                .sorted(Comparator.comparing(Student::getLastName).thenComparing(Student::getId))
+                .sorted(STUDENT_BY_NAME_COMPARATOR)
                 .collect(Collectors.toList());
     }
 
@@ -69,17 +71,16 @@ public class StudentDBEasy implements StudentQuery {
     public List<Student> findStudentsByLastName(Collection<Student> students, String name) {
         return students.stream()
                 .filter(student -> Objects.equals(student.getLastName(), name))
-                .sorted(Comparator.comparing(Student::getFirstName).thenComparing(Student::getId))
+                .sorted(STUDENT_BY_NAME_COMPARATOR)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<Student> findStudentsByGroup(Collection<Student> students, String group) {
-        return sortStudentsByName(
-                students.stream()
-                        .filter(student -> Objects.equals(student.getGroup(), group))
-                        .collect(Collectors.toList())
-        );
+        return students.stream()
+                .filter(student -> Objects.equals(student.getGroup(), group))
+                .sorted(STUDENT_BY_NAME_COMPARATOR)
+                .collect(Collectors.toList());
     }
 
     @Override

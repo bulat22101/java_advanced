@@ -47,15 +47,17 @@ public class StudentDBEasy implements StudentQuery {
 
     @Override
     public List<Student> sortStudentsById(Collection<Student> students) {
-        return students.stream()
-                .sorted(STUDENT_BY_ID_COMPARATOR)
-                .collect(Collectors.toList());
+        return sortStudents(students, STUDENT_BY_ID_COMPARATOR);
     }
 
     @Override
     public List<Student> sortStudentsByName(Collection<Student> students) {
+        return sortStudents(students, STUDENT_BY_NAME_COMPARATOR);
+    }
+
+    public List<Student> sortStudents(Collection<Student> students, Comparator<Student> studentComparator) {
         return students.stream()
-                .sorted(STUDENT_BY_NAME_COMPARATOR)
+                .sorted(studentComparator)
                 .collect(Collectors.toList());
     }
 
